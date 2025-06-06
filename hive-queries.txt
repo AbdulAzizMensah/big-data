@@ -1,0 +1,59 @@
+CREATE EXTERNAL TABLE amazon_reviews (
+    rating DOUBLE,
+    title STRING,
+    text STRING,
+    images ARRAY<STRUCT<
+        attachment_type:STRING,
+        large_image_url:STRING,
+        medium_image_url:STRING,
+        small_image_url:STRING>>,
+    asin STRING,
+    parent_asin STRING,
+    user_id STRING,
+    `timestamp` BIGINT,
+    helpful_vote BIGINT,
+    verified_purchase BOOLEAN
+)
+STORED AS PARQUET
+LOCATION '/user/hadoopuser/amazon_reviews/';
+
+SHOW TABLES;
+
+DESCRIBE amazon_reviews;
+
+SELECT * FROM amazon_reviews LIMIT 10;
+
+SELECT COUNT(*) FROM amazon_reviews;
+
+SELECT COUNT(*) AS verified_count
+FROM amazon_reviews
+WHERE verified_purchase = TRUE;
+
+SELECT rating, COUNT(*) AS count
+FROM amazon_reviews
+GROUP BY rating
+ORDER BY rating DESC;
+
+SELECT asin, COUNT(*) AS total_reviews
+FROM amazon_reviews
+GROUP BY asin
+ORDER BY total_reviews DESC
+LIMIT 5;
+
+SELECT ROUND(AVG(rating), 2) AS average_rating FROM amazon_reviews;
+
+SELECT asin, ROUND(AVG(rating), 2) AS avg_rating, COUNT(*) AS num_reviews
+FROM amazon_reviews
+GROUP BY asin
+HAVING COUNT(*) >= 100
+ORDER BY avg_rating DESC
+LIMIT 5;
+
+SELECT
+  FROM_UNIXTIME(`timestamp`, 'yyyy') AS year,
+  COUNT(*) AS reviews
+FROM amazon_reviews
+GROUP BY FROM_UNIXTIME(`timestamp`, 'yyyy')
+ORDER BY year;
+
+
